@@ -48,7 +48,7 @@ const exTypes = ['跑步', '瑜伽', '骑行', '游泳', '步行', '力量训练
     <div class="content">
       <h2>运动</h2>
       <button class="start-run-btn" @click="router.push('/exercise/running')">
-        <span class="run-icon">🏃</span>
+        <span class="run-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="5.5" r="2" fill="white"/><path d="M7 23l3-7 2 2v7"/><path d="M13 13l2-2 3 1.5V16"/><path d="M18 7.5A6.5 6.5 0 0 1 21 11"/></svg></span>
         <span>开始跑步</span>
         <span class="arrow">→</span>
       </button>

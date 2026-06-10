@@ -29,8 +29,8 @@ public class AiSuggestion {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(name = "icon_emoji", nullable = false, length = 10)
-    private String iconEmoji;
+    @Column(name = "icon_key", nullable = false, length = 20)
+    private String iconKey;
 
     @Column(name = "generated_date", nullable = false)
     private LocalDate generatedDate;

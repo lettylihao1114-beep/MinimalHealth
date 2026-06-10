@@ -89,10 +89,18 @@ function getScoreLabel(score: number): string {
     <!-- FAB 快速添加 -->
     <div class="fab-container">
       <div class="fab-menu" v-if="showFab">
-        <button class="fab-item" @click="showFab=false; router.push('/diet')">🍽 记饮食</button>
-        <button class="fab-item" @click="showFab=false; router.push('/exercise/running')">🏃 开始跑步</button>
-        <button class="fab-item" @click="showFab=false; router.push('/diet')">🍽 记饮食</button>
-        <button class="fab-item" @click="showFab=false; router.push('/water')">💧 记饮水</button>
+        <button class="fab-item" @click="showFab=false; router.push('/diet')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Z"/></svg>
+          记饮食
+        </button>
+        <button class="fab-item" @click="showFab=false; router.push('/exercise/running')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="5.5" r="2" fill="var(--accent)"/><path d="M7 23l3-7 2 2v7"/><path d="M13 13l2-2 3 1.5V16"/><path d="M18 7.5A6.5 6.5 0 0 1 21 11"/></svg>
+          开始跑步
+        </button>
+        <button class="fab-item" @click="showFab=false; router.push('/water')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"><path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8Z"/><path d="M12 8v4l2.5 2.5"/></svg>
+          记饮水
+        </button>
       </div>
       <button class="fab" @click="showFab=!showFab">{{ showFab ? '×' : '+' }}</button>
     </div>

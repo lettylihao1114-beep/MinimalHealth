@@ -5,7 +5,7 @@ export interface AiSuggestionsData {
   suggestions: Array<{
     title: string
     description: string
-    iconEmoji: string
+    iconKey: string
   }>
 }
 

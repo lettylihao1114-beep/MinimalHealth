@@ -19,9 +19,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusiness(BusinessException e) {
-        log.warn("业务异常: {} - {}", e.getCode(), e.getMessage());
-        return ResponseEntity.status(e.getCode() >= 400 && e.getCode() < 600 ? e.getCode() : 400)
-            .body(ApiResponse.error(e.getCode(), e.getMessage()));
+        if (e.getCode() >= 400 && e.getCode() < 500) {
+            log.warn("业务异常: {} - {}", e.getCode(), e.getMessage());
+            return ResponseEntity.status(e.getCode())
+                .body(ApiResponse.error(e.getCode(), e.getMessage()));
+        }
+        log.error("服务器异常: {} - {}", e.getCode(), e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ApiResponse.error(500, "服务器内部错误"));
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException e) {
+        log.warn("未授权: {}", e.getMessage());
+        return ResponseEntity.status(401)
+            .body(ApiResponse.error(401, e.getMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

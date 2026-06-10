@@ -1,8 +1,9 @@
 import axios from 'axios'
 import router from '@/router'
 
-// Android emulator: host machine is always 10.0.2.2
-const baseURL = 'http://10.0.2.2:8080/api'
+// Android emulator uses 10.0.2.2, browser uses localhost
+const isAndroidEmulator = typeof navigator !== 'undefined' && navigator.userAgent.includes('Android')
+const baseURL = (isAndroidEmulator ? 'http://10.0.2.2:8080' : 'http://localhost:8080') + '/api'
 
 const client = axios.create({
   baseURL,

@@ -44,7 +44,7 @@ public class AiSuggestionService {
                 suggestions.add(AiSuggestion.builder()
                     .user(user).title("步行目标")
                     .description("你今天还差 " + remaining + " 步即可达成目标。建议利用午餐后的步行时间，绕公司附近公园走一圈约15分钟即可完成。")
-                    .iconEmoji("🚶").generatedDate(date).isActive(true).build());
+                    .iconKey("walking").generatedDate(date).isActive(true).build());
             }
 
             // Sleep suggestion
@@ -52,7 +52,7 @@ public class AiSuggestionService {
                 suggestions.add(AiSuggestion.builder()
                     .user(user).title("睡眠优化")
                     .description("过去几天你的睡眠时长偏低，建议今晚22:30前放下手机，营造安静睡眠环境。目标睡眠时长" + goal.getDailySleepH() + "小时。")
-                    .iconEmoji("🌙").generatedDate(date).isActive(true).build());
+                    .iconKey("sleep").generatedDate(date).isActive(true).build());
             }
 
             // Hydration suggestion
@@ -61,7 +61,7 @@ public class AiSuggestionService {
                 suggestions.add(AiSuggestion.builder()
                     .user(user).title("补充水分")
                     .description("下午2-4点是补水的最佳时段，建议在接下来的2小时内补充" + (remaining / 100) * 100 + "ml水，保持身体最佳状态。")
-                    .iconEmoji("💧").generatedDate(date).isActive(true).build());
+                    .iconKey("water").generatedDate(date).isActive(true).build());
             }
         }
 
@@ -70,7 +70,7 @@ public class AiSuggestionService {
             suggestions.add(AiSuggestion.builder()
                 .user(user).title("保持好状态")
                 .description("你今天的各项指标表现不错！继续保持当前的生活习惯，健康的身体是最好的投资。")
-                .iconEmoji("✨").generatedDate(date).isActive(true).build());
+                .iconKey("general").generatedDate(date).isActive(true).build());
         }
 
         aiSuggestionRepository.saveAll(suggestions);
@@ -84,7 +84,7 @@ public class AiSuggestionService {
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("title", s.getTitle());
             m.put("description", s.getDescription());
-            m.put("iconEmoji", s.getIconEmoji());
+            m.put("iconKey", s.getIconKey());
             return m;
         }).toList());
         return result;
