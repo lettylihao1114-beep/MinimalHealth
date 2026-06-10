@@ -100,12 +100,6 @@ public class ExerciseService {
         record.setStatus(ExerciseStatus.completed);
         record.setEndedAt(LocalDateTime.now());
 
-        // 低于100m不记录（跑步/骑行等有距离的运动）
-        Double dist = req.getDistanceKm();
-        if (dist != null && dist < 0.1) {
-            exerciseRecordRepository.delete(record);
-            throw new BusinessException("运动距离不足100米，未保存记录");
-        }
         exerciseRecordRepository.save(record);
 
         // Update daily stats
