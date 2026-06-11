@@ -68,6 +68,33 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+// ===== 离线 Canvas 瓦片（无网络时的后备底图） =====
+const OfflineGridLayer = L.GridLayer.extend({
+  createTile(coords: L.Coords) {
+    const tile = document.createElement('canvas')
+    const size = this.getTileSize()
+    tile.width = size.x
+    tile.height = size.y
+    const ctx = tile.getContext('2d')!
+    // 淡绿色背景，模拟地图底色
+    ctx.fillStyle = '#e8efe8'
+    ctx.fillRect(0, 0, size.x, size.y)
+    // 街区网格线
+    ctx.strokeStyle = '#cdd8cd'
+    ctx.lineWidth = 0.5
+    const step = 20
+    for (let x = 0; x <= size.x; x += step) ctx.stroke(new Path2D(`M${x},0 L${x},${size.y}`))
+    for (let y = 0; y <= size.y; y += step) ctx.stroke(new Path2D(`M0,${y} L${size.x},${y}`))
+    // 粗网格（模拟主干道）
+    ctx.strokeStyle = '#bcc8bc'
+    ctx.lineWidth = 1
+    const mainStep = 100
+    for (let x = 0; x <= size.x; x += mainStep) ctx.stroke(new Path2D(`M${x},0 L${x},${size.y}`))
+    for (let y = 0; y <= size.y; y += mainStep) ctx.stroke(new Path2D(`M0,${y} L${size.x},${y}`))
+    return tile
+  }
+})
+
 // ===== 地图初始化 =====
 function initMap(lat: number, lng: number) {
   map = L.map('running-map', {
@@ -77,7 +104,10 @@ function initMap(lat: number, lng: number) {
     maxZoom: 16
   }).setView([lat, lng], 18)
 
-  // OpenStreetMap 彩色瓦片，街道绿地信息清晰
+  // 离线网格底图（始终可用）
+  ;(new OfflineGridLayer()).addTo(map)
+
+  // 尝试加载 OpenStreetMap 瓦片（有网时覆盖在离线网格之上）
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     crossOrigin: 'anonymous'
   }).addTo(map)
@@ -300,7 +330,7 @@ onUnmounted(() => {
     <!-- GPS 状态提示 -->
     <div class="gps-status" v-if="!gpsAvailable">
       <span class="gps-dot"></span>
-      <span>模拟模式（桌面无 GPS）</span>
+      <span>GPS 定位未开启 — 请在系统设置中授权位置权限，或使用模拟定位继续跑步</span>
     </div>
 
     <!-- 核心数据 -->
