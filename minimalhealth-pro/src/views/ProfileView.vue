@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import StatusBar from '../components/StatusBar.vue'
 import TabBar from '../components/TabBar.vue'
 import { getUserProfile, type UserProfileData } from '../api/user'
+import { NativeBridge } from '../api/native-bridge'
 const router = useRouter()
 const activeTab = ref('profile')
 const user = ref<UserProfileData | null>(null)
@@ -31,13 +32,24 @@ const menuIcons: Record<string, string> = {
   body: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
   reminder: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
   privacy: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  about: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
 }
 const menuItems = [
   { name: '健康目标', iconKey: 'goals', path: '/profile/goals' },
   { name: '身体数据', iconKey: 'body', path: '/profile/body' },
   { name: '提醒设置', iconKey: 'reminder', path: '/reminders' },
   { name: '隐私与数据', iconKey: 'privacy', path: '' },
+  { name: '关于我们', iconKey: 'about', isNative: true },
 ]
+function handleMenuClick(m: typeof menuItems[0]) {
+  if (m.isNative) {
+    NativeBridge.openAbout()
+    return
+  }
+  if (m.path) {
+    router.push(m.path)
+  }
+}
 </script>
 <template>
   <div class="page profile">
@@ -52,9 +64,10 @@ const menuItems = [
         <span class="arrow">›</span>
       </div>
       <div class="menu">
-        <button class="menu-item" v-for="m in menuItems" :key="m.name" @click="m.path && router.push(m.path)">
+        <button class="menu-item" v-for="m in menuItems" :key="m.name" @click="handleMenuClick(m)">
           <span class="menu-icon" v-html="menuIcons[m.iconKey]"></span>
           <span class="menu-name">{{ m.name }}</span>
+          <span v-if="m.isNative" class="native-badge">原生</span>
           <span class="menu-arrow">›</span>
         </button>
       </div>
@@ -88,6 +101,10 @@ const menuItems = [
 .menu-item:hover { background: var(--bg-light); }
 .menu-icon { font-size: 18px; }
 .menu-name { flex: 1; font-size: 15px; font-weight: var(--font-medium); color: var(--text-primary); }
+.native-badge {
+  font-size: 11px; color: var(--accent); background: var(--bg-light-green);
+  padding: 2px 8px; border-radius: 10px; font-weight: var(--font-medium);
+}
 .menu-arrow { font-size: 18px; color: var(--text-placeholder); }
 .logout {
   width: 100%; height: 52px; background: var(--bg-white); border: none;

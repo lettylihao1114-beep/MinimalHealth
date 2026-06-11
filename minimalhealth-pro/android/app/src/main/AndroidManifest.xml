@@ -9,6 +9,7 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true" android:networkSecurityConfig="@xml/network_security_config" android:theme="@style/AppTheme">
 
+        <!-- ===== Activity（Android 四大组件之一） ===== -->
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
             android:name=".MainActivity"
@@ -24,6 +25,45 @@
 
         </activity>
 
+        <!-- 新增 Activity：关于页面（含思政元素「健康中国2030」） -->
+        <activity
+            android:name=".AboutActivity"
+            android:label="关于"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!-- ===== Service（Android 四大组件之二） ===== -->
+        <!-- 新增 Service：健康提醒后台服务（饮水/运动/睡眠定时通知） -->
+        <service
+            android:name=".HealthReminderService"
+            android:exported="false" />
+
+        <!-- ===== BroadcastReceiver（Android 四大组件之三） ===== -->
+        <!-- 新增 Receiver：开机自启，启动健康提醒服务 -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 新增 Receiver：网络变化监听 -->
+        <receiver
+            android:name=".ConnectivityReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ===== ContentProvider（Android 四大组件之四） ===== -->
+        <!-- 新增 Provider：对外暴露健康数据，支持跨进程访问 -->
+        <provider
+            android:name=".HealthDataProvider"
+            android:authorities="com.minimalhealth.app.healthprovider"
+            android:exported="true" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -36,6 +76,8 @@
     </application>
 
     <!-- Permissions -->
-
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>
