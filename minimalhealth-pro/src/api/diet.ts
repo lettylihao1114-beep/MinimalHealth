@@ -17,8 +17,8 @@ export function getDiet(date?: string) {
   return client.get<{ data: DietData }>('/diet', { params: { date } })
 }
 
-export function addMeal(mealType: string, foods: string, calories: number) {
-  return client.post<{ data: any }>('/diet', { mealType, foods, calories })
+export function addMeal(mealType: string, calories: number, foods?: string) {
+  return client.post<{ data: any }>('/diet', { mealType, foods: foods || '快速记录', calories })
 }
 
 export function updateMeal(id: number, data: { foods?: string; calories?: number }) {

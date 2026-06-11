@@ -3,11 +3,15 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import StatusBar from '../components/StatusBar.vue'
 import TabBar from '../components/TabBar.vue'
-import { getDashboard, type DashboardData } from '../api/dashboard'
+import { getDashboard, updateStats, type DashboardData } from '../api/dashboard'
 const router = useRouter()
 const activeTab = ref('dashboard')
 const dashboard = ref<DashboardData | null>(null)
 const showFab = ref(false)
+const editingHr = ref(false)
+const editingSleep = ref(false)
+const editHrValue = ref(0)
+const editSleepValue = ref(0.0)
 
 onMounted(async () => {
   try {
@@ -15,6 +19,48 @@ onMounted(async () => {
     dashboard.value = res.data.data
   } catch (e) { /* use defaults */ }
 })
+
+function startEditHr() {
+  editHrValue.value = dashboard.value?.stats?.restingHr || 0
+  editingHr.value = true
+}
+
+function cancelEditHr() {
+  editingHr.value = false
+}
+
+async function confirmEditHr() {
+  if (editHrValue.value < 30 || editHrValue.value > 220) { alert('心率范围 30~220'); return }
+  try {
+    const res = await updateStats(editHrValue.value, undefined)
+    if (dashboard.value) {
+      dashboard.value.stats.restingHr = res.data.data.restingHr
+      dashboard.value.healthScore = res.data.data.healthScore
+    }
+    editingHr.value = false
+  } catch (e: any) { alert('更新失败') }
+}
+
+function startEditSleep() {
+  editSleepValue.value = dashboard.value?.stats?.sleepHours || 0
+  editingSleep.value = true
+}
+
+function cancelEditSleep() {
+  editingSleep.value = false
+}
+
+async function confirmEditSleep() {
+  if (editSleepValue.value < 0 || editSleepValue.value > 24) { alert('睡眠时长 0~24 小时'); return }
+  try {
+    const res = await updateStats(undefined, editSleepValue.value)
+    if (dashboard.value) {
+      dashboard.value.stats.sleepHours = res.data.data.sleepHours
+      dashboard.value.healthScore = res.data.data.healthScore
+    }
+    editingSleep.value = false
+  } catch (e: any) { alert('更新失败') }
+}
 
 function onTab(t: string) {
   if (t === 'dashboard') return
@@ -60,15 +106,37 @@ function getScoreLabel(score: number): string {
           <span class="stat-value">{{ (dashboard?.stats?.steps ?? 0).toLocaleString() }}</span>
           <span class="stat-label">步数</span>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" @click="startEditHr()">
           <span class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E57373" stroke-width="1.5"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
-          <span class="stat-value">{{ dashboard?.stats?.restingHr || '--' }}</span>
-          <span class="stat-label">静息心率</span>
+          <template v-if="!editingHr">
+            <span class="stat-value">{{ dashboard?.stats?.restingHr || '--' }}</span>
+            <span class="stat-label">静息心率</span>
+          </template>
+          <template v-else>
+            <div class="edit-inline">
+              <input class="edit-input" type="number" v-model.number="editHrValue" min="30" max="220" placeholder="bpm" @keyup.enter="confirmEditHr" @keyup.escape="cancelEditHr" />
+              <div class="edit-actions">
+                <button class="edit-confirm" @click.stop="confirmEditHr">✓</button>
+                <button class="edit-cancel" @click.stop="cancelEditHr">✕</button>
+              </div>
+            </div>
+          </template>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" @click="startEditSleep()">
           <span class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8FA89B" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-          <span class="stat-value">{{ dashboard?.stats?.sleepHours != null ? dashboard.stats.sleepHours + 'h' : '--' }}</span>
-          <span class="stat-label">睡眠</span>
+          <template v-if="!editingSleep">
+            <span class="stat-value">{{ dashboard?.stats?.sleepHours != null ? dashboard.stats.sleepHours + 'h' : '--' }}</span>
+            <span class="stat-label">睡眠</span>
+          </template>
+          <template v-else>
+            <div class="edit-inline">
+              <input class="edit-input" type="number" v-model.number="editSleepValue" min="0" max="24" step="0.5" placeholder="小时" @keyup.enter="confirmEditSleep" @keyup.escape="cancelEditSleep" />
+              <div class="edit-actions">
+                <button class="edit-confirm" @click.stop="confirmEditSleep">✓</button>
+                <button class="edit-cancel" @click.stop="cancelEditSleep">✕</button>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
       <div class="activity-section">
@@ -138,6 +206,14 @@ const activityIcons: Record<string, string> = {
 .stat-icon :deep(svg) { display: block; }
 .stat-value { font-size: 22px; font-weight: var(--font-light); color: var(--text-primary); }
 .stat-label { font-size: 12px; color: var(--text-secondary); }
+.stat-card.clickable { cursor: pointer; transition: transform 0.1s; }
+.stat-card.clickable:active { transform: scale(0.97); }
+.edit-inline { display: flex; flex-direction: column; gap: 6px; }
+.edit-input { width: 100%; padding: 6px 8px; border: 1px solid var(--accent); border-radius: var(--radius-sm); font-size: 18px; font-family: Inter, sans-serif; text-align: center; outline: none; }
+.edit-actions { display: flex; gap: 6px; justify-content: center; }
+.edit-confirm, .edit-cancel { width: 28px; height: 28px; border: none; border-radius: 14px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.edit-confirm { background: var(--accent); color: #fff; }
+.edit-cancel { background: var(--bg-light); color: var(--text-secondary); }
 .activity-section { display: flex; flex-direction: column; gap: 16px; }
 .act-header { display: flex; align-items: center; justify-content: space-between; }
 .act-title { font-size: 18px; font-weight: var(--font-medium); color: var(--text-primary); }

@@ -21,3 +21,7 @@ export interface DashboardData {
 export function getDashboard(date?: string) {
   return client.get<{ data: DashboardData }>('/dashboard', { params: { date } })
 }
+
+export function updateStats(restingHr?: number, sleepHours?: number) {
+  return client.put<{ data: { restingHr: number; sleepHours: number; healthScore: number } }>('/stats', { restingHr, sleepHours })
+}

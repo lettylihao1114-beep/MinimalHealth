@@ -22,3 +22,11 @@ export function register(phone: string, password: string) {
 export function refreshToken(refreshToken: string) {
   return client.post<{ data: LoginResponse }>('/auth/refresh', { refreshToken })
 }
+
+export function sendSms(phone: string, type: string) {
+  return client.post('/auth/sms/send', { phone, type })
+}
+
+export function smsLogin(phone: string, code: string) {
+  return client.post<{ data: LoginResponse }>('/auth/sms/login', { phone, code })
+}
