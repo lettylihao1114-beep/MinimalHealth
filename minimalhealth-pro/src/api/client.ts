@@ -1,9 +1,8 @@
 import axios from 'axios'
 import router from '@/router'
 
-// Android emulator uses 10.0.2.2, browser uses localhost
-const isAndroidEmulator = typeof navigator !== 'undefined' && navigator.userAgent.includes('Android')
-const baseURL = (isAndroidEmulator ? 'http://10.0.2.2:8080' : 'http://localhost:8080') + '/api'
+// 统一用 localhost，模拟器/真机通过 adb reverse tcp:8080 tcp:8080 转发
+const baseURL = 'http://localhost:8080/api'
 
 const client = axios.create({
   baseURL,
